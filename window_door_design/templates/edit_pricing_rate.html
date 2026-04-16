@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Pricing Rate - Window & Door Design System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1 class="page-title">{{ page_title }}</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 offset-lg-2">
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% if form.material_type %}
+                    <div class="mb-3">
+                        <label class="form-label" for="id_material_type">{{ form.material_type.label }}</label>
+                        {{ form.material_type }}
+                        {% if form.material_type.errors %}
+                            <div class="text-danger small mt-1">{{ form.material_type.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="id_rate_per_sqft">{{ form.rate_per_sqft.label }}</label>
+                            {{ form.rate_per_sqft }}
+                            <small class="form-text text-muted">in dollars per square foot</small>
+                            {% if form.rate_per_sqft.errors %}
+                                <div class="text-danger small mt-1">{{ form.rate_per_sqft.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="id_labor_cost_per_unit">{{ form.labor_cost_per_unit.label }}</label>
+                            {{ form.labor_cost_per_unit }}
+                            <small class="form-text text-muted">in dollars per unit</small>
+                            {% if form.labor_cost_per_unit.errors %}
+                                <div class="text-danger small mt-1">{{ form.labor_cost_per_unit.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="id_glass_cost_per_sqft">{{ form.glass_cost_per_sqft.label }}</label>
+                            {{ form.glass_cost_per_sqft }}
+                            <small class="form-text text-muted">in dollars per square foot</small>
+                            {% if form.glass_cost_per_sqft.errors %}
+                                <div class="text-danger small mt-1">{{ form.glass_cost_per_sqft.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="id_mesh_cost_per_sqft">{{ form.mesh_cost_per_sqft.label }}</label>
+                            {{ form.mesh_cost_per_sqft }}
+                            <small class="form-text text-muted">in dollars per square foot</small>
+                            {% if form.mesh_cost_per_sqft.errors %}
+                                <div class="text-danger small mt-1">{{ form.mesh_cost_per_sqft.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="id_profile_cost_per_meter">{{ form.profile_cost_per_meter.label }}</label>
+                        {{ form.profile_cost_per_meter }}
+                        <small class="form-text text-muted">in dollars per meter</small>
+                        {% if form.profile_cost_per_meter.errors %}
+                            <div class="text-danger small mt-1">{{ form.profile_cost_per_meter.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle"></i> Save Rate
+                        </button>
+                        <a href="{% url 'pricing_rates' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

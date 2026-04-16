@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Pricing Rates - Window & Door Design System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="page-title">Pricing Rates</h1>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{% url 'create_pricing_rate' %}" class="btn btn-primary btn-lg">
+            <i class="bi bi-plus-circle"></i> New Rate
+        </a>
+    </div>
+</div>
+
+{% if rates %}
+<div class="row">
+    {% for rate in rates %}
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{{ rate.get_material_type_display }}</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tr>
+                        <th>Rate per Sq.ft</th>
+                        <td>${{ rate.rate_per_sqft }}</td>
+                    </tr>
+                    <tr>
+                        <th>Labor Cost per Unit</th>
+                        <td>${{ rate.labor_cost_per_unit }}</td>
+                    </tr>
+                    <tr>
+                        <th>Glass Cost per Sq.ft</th>
+                        <td>${{ rate.glass_cost_per_sqft }}</td>
+                    </tr>
+                    <tr>
+                        <th>Mesh Cost per Sq.ft</th>
+                        <td>${{ rate.mesh_cost_per_sqft }}</td>
+                    </tr>
+                    <tr>
+                        <th>Profile Cost per Meter</th>
+                        <td>${{ rate.profile_cost_per_meter }}</td>
+                    </tr>
+                </table>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'edit_pricing_rate' rate.pk %}" class="btn btn-outline-primary btn-sm">Edit</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card text-center py-5">
+    <div class="card-body">
+        <i class="bi bi-tag" style="font-size: 3rem; color: #ccc;"></i>
+        <p class="text-muted mt-3 mb-3">No pricing rates found. Create your first rate.</p>
+        <a href="{% url 'create_pricing_rate' %}" class="btn btn-primary btn-lg">Create First Rate</a>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

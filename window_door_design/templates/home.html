@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Window & Door Design System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1 class="page-title">
+            <i class="bi bi-house-door"></i> Window & Door Design System
+        </h1>
+        <p class="lead">Create, manage, and export professional quotations for window and door designs.</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-value">{{ total_designs }}</div>
+            <div class="stat-label">Total Designs</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-value"><i class="bi bi-plus-circle text-primary"></i></div>
+            <div class="stat-label"><a href="{% url 'create_design' %}" class="btn btn-primary btn-sm">Create New Design</a></div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-value"><i class="bi bi-gear text-primary"></i></div>
+            <div class="stat-label"><a href="{% url 'pricing_rates' %}" class="btn btn-primary btn-sm">Manage Pricing</a></div>
+        </div>
+    </div>
+</div>
+
+{% if recent_designs %}
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="page-title mt-4">Recent Designs</h2>
+    </div>
+</div>
+
+<div class="row">
+    {% for design in recent_designs %}
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ design.name }}</h5>
+                <p class="card-text text-muted mb-2">
+                    <strong>Code:</strong> {{ design.code }}<br>
+                    <strong>Type:</strong> {{ design.get_type_choice_display }}<br>
+                    <strong>Size:</strong> {{ design.width }}m × {{ design.height }}m<br>
+                    <strong>Units:</strong> {{ design.number_of_units }}
+                </p>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'design_detail' design.pk %}" class="btn btn-primary btn-sm">View</a>
+                    <a href="{% url 'edit_design' design.pk %}" class="btn btn-outline-primary btn-sm">Edit</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-12 text-center">
+        <a href="{% url 'design_list' %}" class="btn btn-outline-primary">View All Designs</a>
+    </div>
+</div>
+{% else %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card text-center py-5">
+            <div class="card-body">
+                <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                <p class="text-muted mt-3 mb-3">No designs yet. Create your first window or door design!</p>
+                <a href="{% url 'create_design' %}" class="btn btn-primary btn-lg">Create First Design</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row mt-5">
+    <div class="col-md-12">
+        <h2 class="page-title">Features</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-pencil"></i> Design Creation</h5>
+                <p class="card-text">Create window and door designs with customizable parameters including dimensions, materials, glass types, and finishes.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-calculator"></i> Automatic Calculations</h5>
+                <p class="card-text">Automatic calculation of material requirements, cutting sizes, and cost estimates based on predefined rates.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-file-pdf"></i> Report Generation</h5>
+                <p class="card-text">Export professional quotations, BOQ, cutting lists, and material summaries as PDF and Excel files.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-window"></i> 2D Preview</h5>
+                <p class="card-text">Visual 2D preview of your designs with accurate dimension display.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
