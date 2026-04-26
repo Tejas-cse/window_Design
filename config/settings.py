@@ -1,7 +1,9 @@
 import os
+import tempfile
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+IS_PRODUCTION = os.environ.get('DEBUG', 'True') == 'False'
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-window-door-design-system-2026')
 
@@ -82,15 +84,14 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') if not IS_PRODUCTION else '/tmp/staticfiles'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media') if not IS_PRODUCTION else '/tmp/media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# PDF and Excel export settings
-TEMP_DIR = os.path.join(BASE_DIR, 'temp')
-if not os.path.exists(TEMP_DIR):
-    os.makedirs(TEMP_DIR)
+# PDF and Excel export settings - Use system temp directory for Vercel
+TEMP_DIR = os.path.join(tempfile.gettempdir(), 'django_app')
+os.makedirs(TEMP_DIR, exist_ok=True)
