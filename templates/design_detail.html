@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ design.name }} - Window & Door Design System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .preview-window {
+        background: linear-gradient(135deg, #e8eef7 0%, #f0f4ff 100%);
+        border: 2px solid #1f4788;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    
+    .info-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #e8eef7 0%, #f0f4ff 100%);
+        color: #1f4788;
+        padding: 10px 16px;
+        border-radius: 20px;
+        margin: 5px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="page-title mb-0">{{ design.name }}</h1>
+            <div>
+                <a href="{% url 'preview_3d' design.pk %}" class="btn btn-primary me-2">
+                    <i class="bi bi-box"></i> 3D Preview
+                </a>
+                <a href="{% url 'edit_design' design.pk %}" class="btn btn-outline-primary">
+                    <i class="bi bi-pencil"></i> Edit
+                </a>
+                <a href="{% url 'delete_design' design.pk %}" class="btn btn-outline-danger">
+                    <i class="bi bi-trash"></i> Delete
+                </a>
+            </div>
+        </div>
+        <p class="text-muted">Code: <strong>{{ design.code }}</strong></p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> Design Information</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tr>
+                        <th>Type</th>
+                        <td>{{ design.get_type_choice_display }}</td>
+                    </tr>
+                    <tr>
+                        <th>Material</th>
+                        <td>{{ design.get_material_display }}</td>
+                    </tr>
+                    <tr>
+                        <th>Width</th>
+                        <td>{{ design.width }} m</td>
+                    </tr>
+                    <tr>
+                        <th>Height</th>
+                        <td>{{ design.height }} m</td>
+                    </tr>
+                    <tr>
+                        <th>Total Area</th>
+                        <td>{{ design.total_area }} sq.m</td>
+                    </tr>
+                    <tr>
+                        <th>Number of Units</th>
+                        <td>{{ design.number_of_units }}</td>
+                    </tr>
+                    <tr>
+                        <th>Glass Type</th>
+                        <td>{{ design.get_glass_type_display }}</td>
+                    </tr>
+                    <tr>
+                        <th>Finish Type</th>
+                        <td>{{ design.get_finish_type_display }}</td>
+                    </tr>
+                    <tr>
+                        <th>Has Mesh</th>
+                        <td>{% if design.has_mesh %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-window"></i> 2D Preview</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="previewCanvas" class="preview-window" width="400" height="300"></canvas>
+                <p class="text-muted small mt-2 text-center">Scale preview of your window/door design</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="report-section">
+            <h5><i class="bi bi-box-seam"></i> Material Requirements</h5>
+            <table class="table table-sm">
+                <tr>
+                    <th>Profile Length Required</th>
+                    <td><strong>{{ material_requirements.profile_length_meters }} m</strong></td>
+                </tr>
+                <tr>
+                    <th>Glass Area</th>
+                    <td><strong>{{ material_requirements.glass_area_sqm }} sq.m</strong></td>
+                </tr>
+                <tr>
+                    <th>Mesh Area</th>
+                    <td><strong>{{ material_requirements.mesh_area_sqm }} sq.m</strong></td>
+                </tr>
+                <tr>
+                    <th>Frame Width</th>
+                    <td>{{ material_requirements.frame_width_mm }} mm</td>
+                </tr>
+                <tr>
+                    <th>Frame Height</th>
+                    <td>{{ material_requirements.frame_height_mm }} mm</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="report-section">
+            <h5><i class="bi bi-currency-dollar"></i> Cost Breakdown</h5>
+            <table class="table table-sm">
+                <tr>
+                    <th>Material Cost</th>
+                    <td>${{ cost_breakdown.material_cost }}</td>
+                </tr>
+                <tr>
+                    <th>Labor Cost</th>
+                    <td>${{ cost_breakdown.labor_cost }}</td>
+                </tr>
+                <tr>
+                    <th>Glass Cost</th>
+                    <td>${{ cost_breakdown.glass_cost }}</td>
+                </tr>
+                <tr>
+                    <th>Mesh Cost</th>
+                    <td>${{ cost_breakdown.mesh_cost }}</td>
+                </tr>
+                <tr>
+                    <th>Profile Cost</th>
+                    <td>${{ cost_breakdown.profile_cost }}</td>
+                </tr>
+                <tr style="border-top: 2px solid #ddd;">
+                    <th>TOTAL COST</th>
+                    <td><strong style="font-size: 1.2rem; color: #1f4788;">${{ cost_breakdown.total_cost }}</strong></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="report-section">
+            <h5><i class="bi bi-download"></i> Download Reports</h5>
+            <p class="mb-3">Export your design information in various formats:</p>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{% url 'download_quotation_pdf' design.pk %}" class="btn btn-primary download-btn">
+                    <i class="bi bi-file-pdf"></i> Quotation (PDF)
+                </a>
+                <a href="{% url 'download_boq_excel' design.pk %}" class="btn btn-success download-btn">
+                    <i class="bi bi-file-earmark-spreadsheet"></i> BOQ (Excel)
+                </a>
+                <a href="{% url 'download_cutting_list_excel' design.pk %}" class="btn btn-info download-btn">
+                    <i class="bi bi-file-earmark-spreadsheet"></i> Cutting List (Excel)
+                </a>
+                <a href="{% url 'download_material_summary_pdf' design.pk %}" class="btn btn-warning download-btn">
+                    <i class="bi bi-file-pdf"></i> Material Summary (PDF)
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <a href="{% url 'design_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Designs
+        </a>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const canvas = document.getElementById('previewCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Fetch preview data
+    fetch('{% url "preview_2d" design.pk %}')
+        .then(response => response.json())
+        .then(data => {
+            // Clear canvas
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw frame
+            ctx.strokeStyle = data.frame.color;
+            ctx.lineWidth = data.frame.stroke_width;
+            ctx.strokeRect(data.frame.x, data.frame.y, data.frame.width, data.frame.height);
+            
+            // Draw window
+            ctx.fillStyle = data.window.color;
+            ctx.fillRect(data.window.x, data.window.y, data.window.width, data.window.height);
+            
+            // Draw label
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(data.window.label, canvas.width / 2, canvas.height / 2);
+            
+            // Draw border
+            ctx.strokeStyle = '#999';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(0, 0, canvas.width, canvas.height);
+        })
+        .catch(error => console.error('Error loading preview:', error));
+});
+</script>
+{% endblock %}

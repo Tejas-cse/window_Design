@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Design - Window & Door Design System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1 class="page-title">{{ page_title }}</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" class="form">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="id_name">{{ form.name.label }}</label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="text-danger small mt-1">{{ form.name.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="id_code">{{ form.code.label }}</label>
+                            {{ form.code }}
+                            {% if form.code.errors %}
+                                <div class="text-danger small mt-1">{{ form.code.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="id_width">{{ form.width.label }}</label>
+                            {{ form.width }}
+                            <small class="form-text text-muted">Width in meters</small>
+                            {% if form.width.errors %}
+                                <div class="text-danger small mt-1">{{ form.width.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="id_height">{{ form.height.label }}</label>
+                            {{ form.height }}
+                            <small class="form-text text-muted">Height in meters</small>
+                            {% if form.height.errors %}
+                                <div class="text-danger small mt-1">{{ form.height.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="id_type_choice">{{ form.type_choice.label }}</label>
+                            {{ form.type_choice }}
+                            {% if form.type_choice.errors %}
+                                <div class="text-danger small mt-1">{{ form.type_choice.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="id_material">{{ form.material.label }}</label>
+                            {{ form.material }}
+                            {% if form.material.errors %}
+                                <div class="text-danger small mt-1">{{ form.material.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3" id="glass-field">
+                            <label class="form-label" for="id_glass_type">{{ form.glass_type.label }}</label>
+                            {{ form.glass_type }}
+                            {% if form.glass_type.errors %}
+                                <div class="text-danger small mt-1">{{ form.glass_type.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="id_finish_type">{{ form.finish_type.label }}</label>
+                            {{ form.finish_type }}
+                            {% if form.finish_type.errors %}
+                                <div class="text-danger small mt-1">{{ form.finish_type.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="id_number_of_units">{{ form.number_of_units.label }}</label>
+                            {{ form.number_of_units }}
+                            {% if form.number_of_units.errors %}
+                                <div class="text-danger small mt-1">{{ form.number_of_units.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">{{ form.has_mesh.label }}</label>
+                            <div class="form-check mt-2">
+                                {{ form.has_mesh }}
+                                <label class="form-check-label" for="id_has_mesh">
+                                    Include mesh (e.g., mosquito mesh)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle"></i> Save Design
+                        </button>
+                        <a href="{% url 'design_list' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Tips</h5>
+            </div>
+            <div class="card-body">
+                <h6>Design Code</h6>
+                <p><small>Use a unique code like WD-001, WD-002, etc., for easy identification.</small></p>
+                
+                <h6>Dimensions</h6>
+                <p><small>Enter dimensions in meters. Valid range: 0.1m to 10m.</small></p>
+                
+                <h6>Material Type</h6>
+                <p><small>Select the base material for frame construction.</small></p>
+                
+                <h6>Glass Type</h6>
+                <p><small>Different glass types have different cost implications.</small></p>
+                
+                <h6>Finish Type</h6>
+                <p><small>The finish affects both appearance and durability.</small></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+<script>
+// Initialize glass field visibility on DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Get form elements
+    const typeChoiceField = document.getElementById('id_type_choice');
+    const glassFieldWrapper = document.getElementById('glass-field');
+    const glassSelect = document.getElementById('id_glass_type');
+    
+    // Validate that elements exist
+    if (!typeChoiceField) {
+        console.error('ERROR: id_type_choice select not found!');
+        return;
+    }
+    if (!glassFieldWrapper) {
+        console.error('ERROR: glass-field wrapper not found!');
+        return;
+    }
+    if (!glassSelect) {
+        console.error('ERROR: id_glass_type select not found!');
+        return;
+    }
+    
+    /**
+     * Update glass field visibility based on type selection
+     */
+    function updateGlassFieldVisibility() {
+        const selectedType = typeChoiceField.value;
+        
+        if (selectedType === 'door') {
+            // HIDE glass field for doors
+            glassFieldWrapper.style.display = 'none';
+            glassSelect.removeAttribute('required');
+            glassSelect.value = '';  // Clear glass type selection
+        } else {
+            // SHOW glass field for windows
+            glassFieldWrapper.style.display = 'block';
+            glassSelect.setAttribute('required', 'required');
+        }
+    }
+    
+    // Initial check on page load
+    updateGlassFieldVisibility();
+    
+    // Add change event listener
+    typeChoiceField.addEventListener('change', updateGlassFieldVisibility);
+});
+</script>

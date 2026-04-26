@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Window & Door Design System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div style="animation: fadeInDown 0.7s ease;">
+            <h1 class="page-title">
+                <i class="bi bi-house-door" style="animation: slideInDown 0.5s ease; display: inline-block;"></i> 
+                Window & Door Design System
+            </h1>
+            <p class="lead text-muted" style="font-size: 1.1rem; font-weight: 500;">
+                <i class="bi bi-star-fill" style="color: #ffd700;"></i> Create, manage, and export professional quotations for window and door designs.
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4" style="animation: fadeInUp 0.6s ease 0.1s both;">
+        <div class="stat-card">
+            <i class="bi bi-file-earmark-check" style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: 10px;"></i>
+            <div class="stat-value">{{ total_designs }}</div>
+            <div class="stat-label">Total Designs</div>
+        </div>
+    </div>
+    <div class="col-md-4" style="animation: fadeInUp 0.6s ease 0.2s both;">
+        <div class="stat-card">
+            <a href="{% url 'create_design' %}" class="btn btn-primary w-100" style="border-radius: 8px; padding: 12px; font-size: 1rem;">
+                <i class="bi bi-plus-circle"></i> Create New Design
+            </a>
+        </div>
+    </div>
+    <div class="col-md-4" style="animation: fadeInUp 0.6s ease 0.3s both;">
+        <div class="stat-card">
+            <a href="{% url 'pricing_rates' %}" class="btn btn-primary w-100" style="border-radius: 8px; padding: 12px; font-size: 1rem;">
+                <i class="bi bi-sliders"></i> Manage Pricing
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if recent_designs %}
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="page-title mt-4"><i class="bi bi-clock-history"></i> Recent Designs</h2>
+    </div>
+</div>
+
+<div class="row">
+    {% for design in recent_designs %}
+    <div class="col-md-4 mb-4">
+        <div class="card" style="height: 100%; display: flex; flex-direction: column;">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">{{ design.name }}</h5>
+                <span class="badge bg-light text-primary">{{ design.code }}</span>
+            </div>
+            <div class="card-body flex-grow-1">
+                <div class="mb-3">
+                    <span class="badge bg-info mb-2">{{ design.get_type_choice_display }}</span>
+                    <span class="badge bg-success mb-2">{{ design.get_material_display }}</span>
+                </div>
+                <p class="card-text text-muted mb-3" style="font-size: 0.95rem;">
+                    <i class="bi bi-rulers"></i> <strong>Size:</strong> {{ design.width }}m × {{ design.height }}m<br>
+                    <i class="bi bi-stack"></i> <strong>Units:</strong> {{ design.number_of_units }}
+                </p>
+                <div class="d-flex gap-2" style="margin-top: auto;">
+                    <a href="{% url 'design_detail' design.pk %}" class="btn btn-primary btn-sm flex-grow-1" style="border-radius: 6px;">View</a>
+                    <a href="{% url 'edit_design' design.pk %}" class="btn btn-outline-primary btn-sm flex-grow-1" style="border-radius: 6px;">Edit</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-12 text-center">
+        <a href="{% url 'design_list' %}" class="btn btn-outline-primary">View All Designs</a>
+    </div>
+</div>
+{% else %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card text-center py-5">
+            <div class="card-body">
+                <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                <p class="text-muted mt-3 mb-3">No designs yet. Create your first window or door design!</p>
+                <a href="{% url 'create_design' %}" class="btn btn-primary btn-lg">Create First Design</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row mt-5">
+    <div class="col-md-12">
+        <h2 class="page-title"><i class="bi bi-lightbulb"></i> Features</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <div class="card h-100" style="position: relative; overflow: hidden;">
+            <div class="card-body">
+                <div style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: 15px;"><i class="bi bi-pencil-square"></i></div>
+                <h5 class="card-title" style="color: var(--primary-color); font-weight: 700;">Design Creation</h5>
+                <p class="card-text text-muted">Create window and door designs with customizable parameters including dimensions, materials, glass types, and finishes.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card h-100" style="position: relative; overflow: hidden;">
+            <div class="card-body">
+                <div style="font-size: 2.5rem; color: #10b981; margin-bottom: 15px;"><i class="bi bi-calculator"></i></div>
+                <h5 class="card-title" style="color: #10b981; font-weight: 700;">Automatic Calculations</h5>
+                <p class="card-text text-muted">Automatic calculation of material requirements, cutting sizes, and cost estimates based on predefined rates.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card h-100" style="position: relative; overflow: hidden;">
+            <div class="card-body">
+                <div style="font-size: 2.5rem; color: #f59e0b; margin-bottom: 15px;"><i class="bi bi-file-earmark-pdf"></i></div>
+                <h5 class="card-title" style="color: #f59e0b; font-weight: 700;">Report Generation</h5>
+                <p class="card-text text-muted">Export professional quotations, BOQ, cutting lists, and material summaries as PDF and Excel files.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card h-100" style="position: relative; overflow: hidden;">
+            <div class="card-body">
+                <div style="font-size: 2.5rem; color: #ec4899; margin-bottom: 15px;"><i class="bi bi-window"></i></div>
+                <h5 class="card-title" style="color: #ec4899; font-weight: 700;">2D Preview</h5>
+                <p class="card-text text-muted">Visual 2D preview of your designs with accurate dimension display.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

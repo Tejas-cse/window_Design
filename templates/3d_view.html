@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    #canvas-container {
+        width: 100%;
+        height: 80vh;
+        background: radial-gradient(circle, #ffffff 0%, #d4dde8 100%);
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border: 1px solid #c2d1e0;
+    }
+    .controls-overlay {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: rgba(255, 255, 255, 0.85);
+        padding: 20px;
+        border-radius: 12px;
+        pointer-events: none;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+    .controls-overlay h5 {
+        color: #1f4788;
+        font-weight: 700;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 10px;
+    }
+    .info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .info-list li {
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+    .info-list i {
+        color: #1f4788;
+        width: 20px;
+        text-align: center;
+        margin-right: 8px;
+    }
+    .instruction-badge {
+        display: inline-block;
+        background: #1f4788;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        margin-top: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="page-title mb-0"><i class="bi bi-box"></i> 3D Preview: {{ design.name }}</h2>
+            <p class="text-muted mt-1 mb-0">{{ design.code }}</p>
+        </div>
+        <a href="{% url 'design_detail' design.pk %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Design
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div id="canvas-container">
+            <div class="controls-overlay">
+                <h5>{{ design.name }} ({{ type|title }})</h5>
+                <ul class="info-list">
+                    <li><i class="bi bi-arrows-fullscreen"></i> <strong>Dimensions:</strong> {{ width }}m × {{ height }}m</li>
+                    <li><i class="bi bi-layers"></i> <strong>Material:</strong> {{ material|title }}</li>
+                    {% if glass != 'none' %}
+                    <li><i class="bi bi-window"></i> <strong>Glass:</strong> {{ glass|title }}</li>
+                    {% endif %}
+                </ul>
+                <div class="instruction-badge">
+                    <i class="bi bi-mouse"></i> Click & Drag to Rotate | Scroll to Zoom
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Include Three.js and OrbitControls via CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const width = {{ width|safe }};
+        const height = {{ height|safe }};
+        const type = "{{ type|safe }}"; // "window" or "door"
+        const materialType = "{{ material|safe }}"; 
+        
+        let frameHeight = height;
+        const frameDepth = type === 'door' ? 0.15 : 0.1;
+        const frameWidthObj = width;
+        const thickness = 0.08;
+
+        // Material Presets
+        let frameColor = 0xaaaaaa; // Default light aluminum
+        let roughness = 0.4;
+        let metalness = 0.6;
+        
+        if (materialType.includes('wood')) {
+            frameColor = 0x8b5a2b; // Wood color
+            roughness = 0.8;
+            metalness = 0.1;
+        } else if (materialType.includes('upvc')) {
+            frameColor = 0xf5f5f5; // Off-white UPVC
+            roughness = 0.6;
+            metalness = 0.1;
+        } else if (materialType.includes('steel')) {
+            frameColor = 0x555555; // Steel
+            roughness = 0.3;
+            metalness = 0.8;
+        }
+
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+
+        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+        // Position camera to fit the object
+        const maxDim = Math.max(width, frameHeight);
+        camera.position.set(0, frameHeight / 2, maxDim * 2.5);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.target.set(0, frameHeight / 2, 0);
+        controls.enableDamping = true; // smooth camera movements
+        controls.dampingFactor = 0.05;
+        controls.minDistance = 0.5;
+        controls.maxDistance = 10;
+
+        // Lighting setup for realism
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+        dirLight.position.set(5, 8, 5);
+        dirLight.castShadow = true;
+        dirLight.shadow.mapSize.width = 1024;
+        dirLight.shadow.mapSize.height = 1024;
+        dirLight.shadow.bias = -0.001;
+        scene.add(dirLight);
+        
+        const dirLight2 = new THREE.DirectionalLight(0xaaccff, 0.4); // Cool rim light
+        dirLight2.position.set(-5, 0, -5);
+        scene.add(dirLight2);
+
+        // Materials
+        const frameMaterial = new THREE.MeshStandardMaterial({ 
+            color: frameColor,
+            roughness: roughness,
+            metalness: metalness
+        });
+
+        const glassMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x88ccff,
+            transparent: true,
+            opacity: 0.3,
+            roughness: 0.1,
+            metalness: 0.1,
+            transmission: 0.9, // glass effect
+            ior: 1.5,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.1
+        });
+
+        // Group to hold all parts and center them perfectly
+        const mainGroup = new THREE.Group();
+
+        // Outer Frame Generation
+        const hw = width / 2;
+        const hh = frameHeight / 2;
+        const ht = thickness / 2;
+        
+        // Left Frame
+        const leftFrame = new THREE.Mesh(new THREE.BoxGeometry(thickness, frameHeight, frameDepth), frameMaterial);
+        leftFrame.position.set(-hw + ht, hh, 0);
+        leftFrame.castShadow = true;
+        leftFrame.receiveShadow = true;
+        mainGroup.add(leftFrame);
+
+        // Right Frame
+        const rightFrame = new THREE.Mesh(new THREE.BoxGeometry(thickness, frameHeight, frameDepth), frameMaterial);
+        rightFrame.position.set(hw - ht, hh, 0);
+        rightFrame.castShadow = true;
+        rightFrame.receiveShadow = true;
+        mainGroup.add(rightFrame);
+
+        // Top Frame
+        const topFrame = new THREE.Mesh(new THREE.BoxGeometry(width - thickness*2, thickness, frameDepth), frameMaterial);
+        topFrame.position.set(0, frameHeight - ht, 0);
+        topFrame.castShadow = true;
+        topFrame.receiveShadow = true;
+        mainGroup.add(topFrame);
+
+        // Bottom Frame (different for door vs window)
+        if (type !== 'door') {
+            const bottomFrame = new THREE.Mesh(new THREE.BoxGeometry(width - thickness*2, thickness, frameDepth), frameMaterial);
+            bottomFrame.position.set(0, ht, 0);
+            bottomFrame.castShadow = true;
+            bottomFrame.receiveShadow = true;
+            mainGroup.add(bottomFrame);
+        } else {
+            // Smaller bottom threshold for door
+            const bottomFrame = new THREE.Mesh(new THREE.BoxGeometry(width, 0.02, frameDepth), frameMaterial);
+            bottomFrame.position.set(0, 0.01, 0);
+            bottomFrame.castShadow = true;
+            bottomFrame.receiveShadow = true;
+            mainGroup.add(bottomFrame);
+        }
+
+        // Inner Panels & Glass
+        let hasGlass = true;
+        if (type === 'door' && materialType.includes('wood')) {
+            // Assume solid wood door naturally might barely have glass or none, but user 
+            // usually specs glass. If it's a door and they specifically chose wood, maybe solid panel bottoms
+            hasGlass = false;
+        }
+
+        const gw = width - thickness*2;
+        
+        if (type === 'door') {
+            const bottomPanelHeight = frameHeight * 0.3; // Solid bottom panel for door
+            const glassHeight = frameHeight - thickness - bottomPanelHeight - thickness; // Top glass
+            
+            // Mid Rail
+            const midRail = new THREE.Mesh(new THREE.BoxGeometry(gw, thickness, frameDepth), frameMaterial);
+            midRail.position.set(0, bottomPanelHeight + ht, 0);
+            midRail.castShadow = true;
+            mainGroup.add(midRail);
+            
+            // Bottom Solid Panel
+            const solidPanelThickness = thickness * 0.5;
+            const bottomPanelGeo = new THREE.BoxGeometry(gw, bottomPanelHeight, solidPanelThickness);
+            const solidPanel = new THREE.Mesh(bottomPanelGeo, frameMaterial);
+            solidPanel.position.set(0, bottomPanelHeight/2, 0);
+            solidPanel.castShadow = true;
+            mainGroup.add(solidPanel);
+            
+            // Top Panel (Glass or Solid)
+            if (hasGlass) {
+                const glassPanel = new THREE.Mesh(new THREE.BoxGeometry(gw, glassHeight, 0.01), glassMaterial);
+                glassPanel.position.set(0, bottomPanelHeight + thickness + glassHeight/2, 0);
+                mainGroup.add(glassPanel);
+            } else {
+                const topSolidPanel = new THREE.Mesh(new THREE.BoxGeometry(gw, glassHeight, solidPanelThickness), frameMaterial);
+                topSolidPanel.position.set(0, bottomPanelHeight + thickness + glassHeight/2, 0);
+                topSolidPanel.castShadow = true;
+                mainGroup.add(topSolidPanel);
+            }
+            
+            // Handle
+            const handleGeo = new THREE.CylinderGeometry(0.01, 0.01, 0.2);
+            const handleMat = new THREE.MeshStandardMaterial({ color: 0xdddddd, metalness: 0.9, roughness: 0.2 });
+            const handle = new THREE.Mesh(handleGeo, handleMat);
+            handle.position.set((width/2) - thickness - 0.05, frameHeight/2, frameDepth/2 + 0.03); // Right side
+            handle.castShadow = true;
+            mainGroup.add(handle);
+            
+        } else {
+            // Window Glass
+            const gh = frameHeight - thickness*2;
+            const gy = frameHeight/2;
+            
+            const glassPanel = new THREE.Mesh(new THREE.BoxGeometry(gw, gh, 0.01), glassMaterial);
+            glassPanel.position.set(0, gy, 0);
+            mainGroup.add(glassPanel);
+        }
+
+        scene.add(mainGroup);
+
+        // Add a subtle floor to catch shadows
+        const floorGeo = new THREE.PlaneGeometry(20, 20);
+        const floorMat = new THREE.ShadowMaterial({ opacity: 0.2 });
+        const floor = new THREE.Mesh(floorGeo, floorMat);
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.y = 0;
+        floor.receiveShadow = true;
+        scene.add(floor);
+        
+        // Add a subtle grid helper for scale context
+        const gridHelper = new THREE.GridHelper(10, 20, 0x000000, 0x000000);
+        gridHelper.material.opacity = 0.1;
+        gridHelper.material.transparent = true;
+        gridHelper.position.y = 0.001; // slightly above floor to prevent z-fighting
+        scene.add(gridHelper);
+
+        // Auto rotation
+        let isAutoRotating = true;
+        let lastTime = 0;
+        
+        // Let controls handle interaction, disable auto rotate when interacted
+        controls.addEventListener('start', () => { isAutoRotating = false; });
+
+        function animate(time) {
+            requestAnimationFrame(animate);
+            
+            const delta = time - lastTime;
+            lastTime = time;
+            
+            if (isAutoRotating && delta < 100) {
+                // Rotate smoothly on Y axis
+                mainGroup.rotation.y += 0.005;
+            }
+            
+            controls.update(); // required if controls.enableDamping is true
+            renderer.render(scene, camera);
+        }
+        
+        requestAnimationFrame(animate);
+
+        // Responsive handling
+        window.addEventListener('resize', onWindowResize, false);
+        function onWindowResize() {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}All Designs - Window & Door Design System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="page-title">All Designs</h1>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{% url 'create_design' %}" class="btn btn-primary btn-lg">
+            <i class="bi bi-plus-circle"></i> New Design
+        </a>
+    </div>
+</div>
+
+{% if designs %}
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr style="background-color: #f8f9fa;">
+                <th>Code</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Material</th>
+                <th>Dimensions</th>
+                <th>Units</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for design in designs %}
+            <tr>
+                <td><strong>{{ design.code }}</strong></td>
+                <td>{{ design.name }}</td>
+                <td>
+                    <span class="badge bg-primary">{{ design.get_type_choice_display }}</span>
+                </td>
+                <td>{{ design.get_material_display }}</td>
+                <td>{{ design.width }}m × {{ design.height }}m</td>
+                <td>{{ design.number_of_units }}</td>
+                <td>
+                    <small class="text-muted">{{ design.created_at|date:"M d, Y" }}</small>
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <a href="{% url 'design_detail' design.pk %}" class="btn btn-outline-primary" title="View">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="{% url 'edit_design' design.pk %}" class="btn btn-outline-secondary" title="Edit">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="{% url 'delete_design' design.pk %}" class="btn btn-outline-danger" title="Delete">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card text-center py-5">
+    <div class="card-body">
+        <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+        <p class="text-muted mt-3 mb-3">No designs found. Create your first design to get started.</p>
+        <a href="{% url 'create_design' %}" class="btn btn-primary btn-lg">Create First Design</a>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
