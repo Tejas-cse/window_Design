@@ -9,6 +9,9 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*,localhost,127.0.0.1').split(',')
 
+NEXT_PUBLIC_SUPABASE_URL = os.environ.get('https://yvxtkosszcrakfrrgiun.supabase.co')
+NEXT_PUBLIC_SUPABASE_ANON_KEY = os.environ.get('NeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4dnRrb3NzemNyYWtmcnJnaXVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMjU3MTYsImV4cCI6MjA5MjcwMTcxNn0.GHpg1mg2tC7MJSB355eH0oF4b0fvVXR3DRp6tCD2OBw')
+
 INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.staticfiles',
