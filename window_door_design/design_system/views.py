@@ -5,6 +5,7 @@ from django.conf import settings
 import json
 import os
 from datetime import datetime
+from pathlib import Path
 
 from .models import WindowDoorDesign, PricingRate, DesignReport
 from .forms import WindowDoorDesignForm, PricingRateForm
@@ -146,6 +147,21 @@ def preview_2d(request, pk):
     return JsonResponse(preview_data)
 
 
+def preview_3d(request, pk):
+    """Generate 3D preview template with context"""
+    design = get_object_or_404(WindowDoorDesign, pk=pk)
+    
+    context = {
+        'design': design,
+        'width': float(design.width),
+        'height': float(design.height),
+        'type': design.get_type_choice_display().lower(),
+        'material': design.get_material_display().lower(),
+        'glass': design.get_glass_type_display().lower() if design.glass_type else 'none',
+        'page_title': f'3D Preview - {design.name}',
+    }
+    
+    return render(request, '3d_view.html', context)
 @require_http_methods(["GET"])
 def download_quotation_pdf(request, pk):
     """Download quotation as PDF"""
@@ -253,3 +269,85 @@ def create_pricing_rate(request):
     
     context = {'form': form, 'page_title': 'Create Pricing Rate'}
     return render(request, 'edit_pricing_rate.html', context)
+
+
+def get_design_recommendation(request):
+    """
+    Get AI-powered design recommendation based on user inputs
+    Handles both GET (display form) and POST (get prediction)
+    """
+    try:
+        from .predict import DesignPredictor, get_recommendation_details
+    except ImportError:
+        context = {
+            'error': 'ML model not available. Please train the model first.',
+            'page_title': 'Design Recommendation'
+        }
+        return render(request, 'recommendation.html', context)
+    
+    if request.method == 'POST':
+        # Collect user inputs
+        input_data = {
+            'room_size': request.POST.get('room_size'),
+            'budget': request.POST.get('budget'),
+            'noise_level': request.POST.get('noise_level'),
+            'sunlight': request.POST.get('sunlight'),
+            'room_type': request.POST.get('room_type'),
+        }
+        
+        # Check for missing values
+        if any(v is None for v in input_data.values()):
+            context = {
+                'error': 'Please fill in all fields',
+                'valid_values': DesignPredictor().get_valid_values(),
+                'page_title': 'Design Recommendation'
+            }
+            return render(request, 'recommendation.html', context)
+        
+        # Make prediction
+        try:
+            predictor = DesignPredictor()
+            prediction = predictor.predict(input_data)
+            recommendation = get_recommendation_details(prediction)
+            
+            context = {
+                'user_input': input_data,
+                'prediction': prediction,
+                'recommendation': recommendation,
+                'valid_values': predictor.get_valid_values(),
+                'page_title': 'Design Recommendation'
+            }
+            return render(request, 'recommendation.html', context)
+        except FileNotFoundError:
+            context = {
+                'error': 'ML model not trained yet. Please run training script first.',
+                'valid_values': DesignPredictor().get_valid_values() if Path(__file__).parent.joinpath('encoders.pkl').exists() else {},
+                'page_title': 'Design Recommendation'
+            }
+            return render(request, 'recommendation.html', context)
+        except Exception as e:
+            context = {
+                'error': f'Error during prediction: {str(e)}',
+                'valid_values': DesignPredictor().get_valid_values(),
+                'page_title': 'Design Recommendation'
+            }
+            return render(request, 'recommendation.html', context)
+    
+    # GET request - show form with valid values
+    try:
+        predictor = DesignPredictor()
+        valid_values = predictor.get_valid_values()
+    except Exception:
+        valid_values = {
+            'room_size': ['small', 'medium', 'large'],
+            'budget': ['low', 'medium', 'high'],
+            'noise_level': ['low', 'medium', 'high'],
+            'sunlight': ['low', 'medium', 'high'],
+            'room_type': ['bedroom', 'kitchen', 'office', 'living']
+        }
+    
+    context = {
+        'valid_values': valid_values,
+        'page_title': 'Design Recommendation'
+    }
+    return render(request, 'recommendation.html', context)

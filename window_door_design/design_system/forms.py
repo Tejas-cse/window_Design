@@ -42,7 +42,6 @@ class WindowDoorDesignForm(forms.ModelForm):
             }),
             'glass_type': forms.Select(attrs={
                 'class': 'form-control',
-                'required': True
             }),
             'has_mesh': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
@@ -67,6 +66,8 @@ class WindowDoorDesignForm(forms.ModelForm):
         cleaned_data = super().clean()
         width = cleaned_data.get('width')
         height = cleaned_data.get('height')
+        type_choice = cleaned_data.get('type_choice')
+        glass_type = cleaned_data.get('glass_type')
         
         # Validation: dimensions must be reasonable
         if width and height:
@@ -78,6 +79,18 @@ class WindowDoorDesignForm(forms.ModelForm):
                 raise forms.ValidationError(
                     "Invalid dimensions. Width and height should be at least 0.1 meters."
                 )
+        
+        # If type is 'door', glass_type is not required
+        if type_choice == 'door':
+            cleaned_data['glass_type'] = None
+            # Don't validate glass_type for doors
+            if 'glass_type' in self.errors:
+                del self.errors['glass_type']
+        elif type_choice == 'window' and not glass_type:
+            # If type is 'window', glass_type is required
+            raise forms.ValidationError(
+                "Glass type is required for windows."
+            )
         
         return cleaned_data
 

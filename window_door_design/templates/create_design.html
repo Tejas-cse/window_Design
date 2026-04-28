@@ -70,7 +70,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-6 mb-3" id="glass-field">
                             <label class="form-label" for="id_glass_type">{{ form.glass_type.label }}</label>
                             {{ form.glass_type }}
                             {% if form.glass_type.errors %}
@@ -146,3 +146,51 @@
 </div>
 
 {% endblock %}
+
+<script>
+// Initialize glass field visibility on DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Get form elements
+    const typeChoiceField = document.getElementById('id_type_choice');
+    const glassFieldWrapper = document.getElementById('glass-field');
+    const glassSelect = document.getElementById('id_glass_type');
+    
+    // Validate that elements exist
+    if (!typeChoiceField) {
+        console.error('ERROR: id_type_choice select not found!');
+        return;
+    }
+    if (!glassFieldWrapper) {
+        console.error('ERROR: glass-field wrapper not found!');
+        return;
+    }
+    if (!glassSelect) {
+        console.error('ERROR: id_glass_type select not found!');
+        return;
+    }
+    
+    /**
+     * Update glass field visibility based on type selection
+     */
+    function updateGlassFieldVisibility() {
+        const selectedType = typeChoiceField.value;
+        
+        if (selectedType === 'door') {
+            // HIDE glass field for doors
+            glassFieldWrapper.style.display = 'none';
+            glassSelect.removeAttribute('required');
+            glassSelect.value = '';  // Clear glass type selection
+        } else {
+            // SHOW glass field for windows
+            glassFieldWrapper.style.display = 'block';
+            glassSelect.setAttribute('required', 'required');
+        }
+    }
+    
+    // Initial check on page load
+    updateGlassFieldVisibility();
+    
+    // Add change event listener
+    typeChoiceField.addEventListener('change', updateGlassFieldVisibility);
+});
+</script>

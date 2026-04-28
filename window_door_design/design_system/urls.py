@@ -14,12 +14,16 @@ urlpatterns = [
     
     # Preview and visualization
     path('designs/<int:pk>/preview-2d/', views.preview_2d, name='preview_2d'),
+    path('designs/<int:pk>/preview-3d/', views.preview_3d, name='preview_3d'),
     
     # Report downloads
     path('designs/<int:pk>/download/quotation-pdf/', views.download_quotation_pdf, name='download_quotation_pdf'),
     path('designs/<int:pk>/download/boq-excel/', views.download_boq_excel, name='download_boq_excel'),
     path('designs/<int:pk>/download/cutting-list-excel/', views.download_cutting_list_excel, name='download_cutting_list_excel'),
     path('designs/<int:pk>/download/material-summary-pdf/', views.download_material_summary_pdf, name='download_material_summary_pdf'),
+    
+    # AI Recommendation
+    path('recommendation/', views.get_design_recommendation, name='get_design_recommendation'),
     
     # Pricing rates
     path('pricing-rates/', views.pricing_rates, name='pricing_rates'),

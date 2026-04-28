@@ -27,13 +27,8 @@ class PricingRate(models.Model):
 class WindowDoorDesign(models.Model):
     """Main model to store window/door design specifications"""
     TYPE_CHOICES = [
-        ('sliding', 'Sliding'),
-        ('casement', 'Casement'),
-        ('awning', 'Awning'),
-        ('tilt_turn', 'Tilt & Turn'),
-        ('fixed', 'Fixed'),
-        ('bifold', 'Bifold'),
-        ('revolving', 'Revolving'),
+        ('window', 'Window'),
+        ('door', 'Door'),
     ]
     
     GLASS_TYPE_CHOICES = [
@@ -64,7 +59,7 @@ class WindowDoorDesign(models.Model):
     width = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0.1)])  # in meters
     height = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0.1)])  # in meters
     type_choice = models.CharField(max_length=20, choices=TYPE_CHOICES)
-    glass_type = models.CharField(max_length=20, choices=GLASS_TYPE_CHOICES)
+    glass_type = models.CharField(max_length=20, choices=GLASS_TYPE_CHOICES, null=True, blank=True)
     has_mesh = models.BooleanField(default=False)
     finish_type = models.CharField(max_length=20, choices=FINISH_TYPE_CHOICES)
     number_of_units = models.IntegerField(validators=[MinValueValidator(1)], default=1)

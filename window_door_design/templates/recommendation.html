@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Design Recommendation - Window & Door Design System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1 class="page-title"><i class="bi bi-robot"></i> AI Design Recommendation</h1>
+        <p class="text-muted">Let our AI system recommend the perfect window/door design for your room</p>
+    </div>
+</div>
+
+{% if error %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-circle"></i> {{ error }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+
+<div class="row g-4">
+    <!-- Input Form -->
+    <div class="col-lg-6">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-chat-left-dots"></i> Tell Us About Your Room</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" class="form-group">
+                    {% csrf_token %}
+                    
+                    <!-- Room Size -->
+                    <div class="mb-3">
+                        <label for="room_size" class="form-label fw-bold">Room Size</label>
+                        <select class="form-select" name="room_size" id="room_size" required>
+                            <option value="">Select room size...</option>
+                            {% for size in valid_values.room_size %}
+                                <option value="{{ size }}" 
+                                    {% if request.POST.room_size == size %}selected{% endif %}>
+                                    {{ size|title }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">Small (Bedroom), Medium (Office), Large (Living)</small>
+                    </div>
+                    
+                    <!-- Budget -->
+                    <div class="mb-3">
+                        <label for="budget" class="form-label fw-bold">Budget</label>
+                        <select class="form-select" name="budget" id="budget" required>
+                            <option value="">Select your budget...</option>
+                            {% for b in valid_values.budget %}
+                                <option value="{{ b }}" 
+                                    {% if request.POST.budget == b %}selected{% endif %}>
+                                    {{ b|title }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Noise Level -->
+                    <div class="mb-3">
+                        <label for="noise_level" class="form-label fw-bold">Noise Level in Area</label>
+                        <select class="form-select" name="noise_level" id="noise_level" required>
+                            <option value="">Select noise level...</option>
+                            {% for noise in valid_values.noise_level %}
+                                <option value="{{ noise }}" 
+                                    {% if request.POST.noise_level == noise %}selected{% endif %}>
+                                    {{ noise|title }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">How much ambient noise is there?</small>
+                    </div>
+                    
+                    <!-- Sunlight -->
+                    <div class="mb-3">
+                        <label for="sunlight" class="form-label fw-bold">Sunlight Exposure</label>
+                        <select class="form-select" name="sunlight" id="sunlight" required>
+                            <option value="">Select sunlight level...</option>
+                            {% for sun in valid_values.sunlight %}
+                                <option value="{{ sun }}" 
+                                    {% if request.POST.sunlight == sun %}selected{% endif %}>
+                                    {{ sun|title }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Room Type -->
+                    <div class="mb-3">
+                        <label for="room_type" class="form-label fw-bold">Room Type</label>
+                        <select class="form-select" name="room_type" id="room_type" required>
+                            <option value="">Select room type...</option>
+                            {% for room in valid_values.room_type %}
+                                <option value="{{ room }}" 
+                                    {% if request.POST.room_type == room %}selected{% endif %}>
+                                    {{ room|title }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-lg w-100 py-2 mt-2">
+                        <i class="bi bi-lightning-fill"></i> Get Recommendation
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recommendation Results -->
+    <div class="col-lg-6">
+        {% if prediction %}
+        <div class="card h-100 shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-check-circle"></i> Our Recommendation</h5>
+            </div>
+            <div class="card-body">
+                
+                <!-- Window Type -->
+                <div class="mb-3 p-3 border-start border-4 border-primary rounded" style="background-color: rgba(31, 71, 136, 0.05);">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-window fs-5 text-primary me-2"></i>
+                        <h6 class="mb-0 text-muted">Window Type</h6>
+                    </div>
+                    <h5 class="mb-0 text-primary fw-bold">{{ prediction.window_type|title }}</h5>
+                </div>
+                
+                <!-- Glass Type -->
+                <div class="mb-3 p-3 border-start border-4 border-info rounded" style="background-color: rgba(13, 202, 240, 0.05);">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-gem fs-5 text-info me-2"></i>
+                        <h6 class="mb-0 text-muted">Glass Type</h6>
+                    </div>
+                    <h5 class="mb-0 text-info fw-bold">{{ prediction.glass_type|title }}</h5>
+                </div>
+                
+                <!-- Material Type -->
+                <div class="mb-3 p-3 border-start border-4 border-warning rounded" style="background-color: rgba(255, 193, 7, 0.05);">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-hammer fs-5 text-warning me-2"></i>
+                        <h6 class="mb-0 text-muted">Material Type</h6>
+                    </div>
+                    <h5 class="mb-0 text-warning fw-bold">
+                        {{ prediction.material_type|title }}
+                    </h5>
+                </div>
+                
+            </div>
+        </div>
+        
+        <!-- Detailed Information -->
+        <div class="card shadow-sm mt-3">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> Details & Advantages</h5>
+            </div>
+            <div class="card-body p-4">
+                <!-- Description -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-muted mb-2"><i class="bi bi-bookmark-fill text-primary"></i> Description</h6>
+                    <p class="card-text text-secondary mb-0">{{ recommendation.description }}</p>
+                </div>
+
+                <!-- Advantages Section -->
+                {% if recommendation.advantages %}
+                <div class="mb-4">
+                    <h6 class="fw-bold text-success mb-3">
+                        <i class="bi bi-star-fill text-warning"></i> Advantages
+                    </h6>
+                    <div class="row g-2">
+                        {% for advantage in recommendation.advantages %}
+                        <div class="col-12">
+                            <div class="d-flex align-items-start p-2 rounded" style="background-color: rgba(40, 167, 69, 0.05);">
+                                <i class="bi bi-check-circle-fill text-success me-2 mt-1" style="flex-shrink: 0;"></i>
+                                <span class="text-secondary">{{ advantage }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Considerations Section -->
+                {% if recommendation.considerations %}
+                <div class="mb-2">
+                    <h6 class="fw-bold text-info mb-3">
+                        <i class="bi bi-lightbulb-fill text-info"></i> Considerations
+                    </h6>
+                    <div class="row g-2">
+                        {% for consideration in recommendation.considerations %}
+                        <div class="col-12">
+                            <div class="d-flex align-items-start p-2 rounded" style="background-color: rgba(13, 202, 240, 0.05);">
+                                <i class="bi bi-info-circle-fill text-info me-2 mt-1" style="flex-shrink: 0;"></i>
+                                <span class="text-secondary">{{ consideration }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Create Design Button -->
+        <a href="{% url 'create_design' %}" class="btn btn-success btn-lg w-100 mt-3 py-2">
+            <i class="bi bi-pencil-square"></i> Create Design Based on Recommendation
+        </a>
+        {% else %}
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body d-flex align-items-center justify-content-center py-5">
+                <div class="text-center">
+                    <i class="bi bi-chat-dots text-muted" style="font-size: 4rem;"></i>
+                    <p class="text-muted mt-3">
+                        Fill out the form on the left and click "Get Recommendation" to see our AI-powered design suggestions!
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .page-title {
+        color: #1f4788;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-select, .form-control {
+        border: 1px solid #e0e0e0;
+        transition: all 0.3s ease;
+    }
+
+    .form-select:focus, .form-control:focus {
+        border-color: #1f4788;
+        box-shadow: 0 0 0 0.2rem rgba(31, 71, 136, 0.25);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #1f4788, #2c5aa0);
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(31, 71, 136, 0.3);
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+
+    .list-group-item {
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid #f0f0f0;
+        padding: 0.75rem 0;
+    }
+
+    .list-group-item:last-child {
+        border-bottom: none;
+    }
+</style>
+
+{% endblock %}
