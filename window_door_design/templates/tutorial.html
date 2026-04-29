@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }} - Window & Door Design System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tutorial-shell {
+        max-width: 1180px;
+        margin: 0 auto;
+    }
+
+    .tutorial-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 18px;
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(148, 163, 184, 0.32);
+        border-radius: 8px;
+        box-shadow: 0 18px 42px rgba(15, 23, 42, 0.12);
+        padding: 24px;
+    }
+
+    .tutorial-title {
+        color: #1f4788;
+        font-size: clamp(2rem, 4vw, 3.4rem);
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .tutorial-copy {
+        color: #526174;
+        font-size: 1rem;
+        max-width: 780px;
+        margin: 8px 0 0;
+    }
+
+    .video-frame {
+        background: #0f172a;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid rgba(15, 23, 42, 0.2);
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.24);
+    }
+
+    .tutorial-video {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        background: #0f172a;
+    }
+
+    .tutorial-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="tutorial-shell">
+    <div class="tutorial-hero">
+        <div>
+            <h1 class="tutorial-title"><i class="bi bi-play-circle"></i> Tutorial</h1>
+            <p class="tutorial-copy">
+                Watch the walkthrough to understand how to create designs, preview the 3D room view, switch materials, and use the visualization controls.
+            </p>
+        </div>
+
+        <div class="video-frame">
+            <video class="tutorial-video" controls preload="metadata" playsinline>
+                <source src="{% static 'media/tutorial_video.mov' %}" type="video/quicktime">
+                <source src="{% static 'media/tutorial_video.mov' %}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+
+        <div class="tutorial-actions">
+            <a href="{% url 'design_list' %}" class="btn btn-primary">
+                <i class="bi bi-window"></i> View Designs
+            </a>
+            <a href="{% url 'create_design' %}" class="btn btn-outline-primary">
+                <i class="bi bi-plus-circle"></i> Create Design
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

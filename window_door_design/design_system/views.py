@@ -23,6 +23,11 @@ def home(request):
     return render(request, 'home.html', context)
 
 
+def tutorial(request):
+    """Tutorial video page"""
+    return render(request, 'tutorial.html', {'page_title': 'Tutorial'})
+
+
 def create_design(request):
     """Create a new window/door design"""
     if request.method == 'POST':
